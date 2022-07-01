@@ -1,7 +1,7 @@
 {
   "name": "nordicnrf52",
   "title": "Nordic nRF52",
-  "description": "The nRF52 Series are built for speed to carry out increasingly complex tasks in the shortest possible time and return to sleep, conserving precious battery power. They have a Cortex-M4F processor and are the most capable Bluetooth Smart SoCs on the market.",
+  "description": "The nRF52 Series are built for speed to carry out increasingly complex tasks in the shortest possible time and return to sleep, conserving precious battery power. They have a Cortex-M4F processor which makes them quite capable Bluetooth Smart SoCs.",
   "homepage": "https://www.nordicsemi.com/Products/nRF52-Series-SoC",
   "license": "Apache-2.0",
   "keywords": [
@@ -12,13 +12,13 @@
     "nRF52"
   ],
   "engines": {
-    "platformio": "^5"
+    "platformio": "^6"
   },
   "repository": {
     "type": "git",
     "url": "https://github.com/platformio/platform-nordicnrf52.git"
   },
-  "version": "8.3.0",
+  "version": "9.4.0",
   "frameworks": {
     "arduino": {
       "package": "framework-arduinonordicnrf5",
@@ -56,7 +56,7 @@
       "type": "framework",
       "optional": true,
       "owner": "platformio",
-      "version": "~1.10000.0"
+      "version": "~1.10300.0"
     },
     "framework-arduinonordicnrf5": {
       "type": "framework",
@@ -68,7 +68,7 @@
       "type": "framework",
       "optional": true,
       "owner": "platformio",
-      "version": "~2.4.0"
+      "version": "~3.1.1"
     },
     "framework-cmsis": {
       "type": "framework",
@@ -80,7 +80,7 @@
       "type": "framework",
       "optional": true,
       "owner": "platformio",
-      "version": "~2.20600.0"
+      "version": "~2.20701.0"
     },
     "tool-adafruit-nrfutil": {
       "owner": "platformio",
@@ -95,7 +95,7 @@
       "type": "uploader",
       "optional": true,
       "owner": "platformio",
-      "version": "~2.1000.0"
+      "version": "~2.1100.0"
     },
     "tool-nrfjprog": {
       "type": "uploader",
@@ -118,7 +118,7 @@
     "tool-cmake": {
       "optional": true,
       "owner": "platformio",
-      "version": "~3.16.0"
+      "version": "~3.21.0"
     },
     "tool-dtc": {
       "optional": true,

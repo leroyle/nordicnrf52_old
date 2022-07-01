@@ -32,7 +32,7 @@ FRAMEWORK_DIR = platform.get_package_dir("framework-arduinonordicnrf5")
 assert isdir(FRAMEWORK_DIR)
 
 env.Append(
-    ASFLAGS=["-x", "assembler-with-cpp"],
+    ASPPFLAGS=["-x", "assembler-with-cpp"],
 
     CFLAGS=["-std=gnu11"],
 
@@ -118,10 +118,6 @@ if board.get("build.cpu") == "cortex-m4":
         ]
     )
 
-env.Append(
-    ASFLAGS=env.get("CCFLAGS", [])[:]
-)
-
 # Process softdevice options
 softdevice_ver = None
 ldscript_path = None
@@ -184,15 +180,18 @@ if not any(d in clock_options for d in cpp_defines):
 libs = []
 
 if "build.variant" in board:
-    env.Append(CPPPATH=[
-        join(FRAMEWORK_DIR, "variants", board.get("build.variant"))
-    ])
-
-    libs.append(
-        env.BuildLibrary(
-            join("$BUILD_DIR", "FrameworkArduinoVariant"),
-            join(FRAMEWORK_DIR, "variants",
-                 board.get("build.variant"))))
+    variants_dir = join(
+        "$PROJECT_DIR", board.get("build.variants_dir")) if board.get(
+            "build.variants_dir", "") else join(FRAMEWORK_DIR, "variants")
+    env.Append(
+        CPPPATH=[
+            join(variants_dir, board.get("build.variant"))
+        ]
+    )
+    libs.append(env.BuildLibrary(
+        join("$BUILD_DIR", "FrameworkArduinoVariant"),
+        join(variants_dir, board.get("build.variant"))
+    ))
 
 libs.append(
     env.BuildLibrary(

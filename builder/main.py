@@ -20,7 +20,7 @@ from os.path import isdir, join, basename
 from SCons.Script import (ARGUMENTS, COMMAND_LINE_TARGETS, AlwaysBuild,
                           Builder, Default, DefaultEnvironment)
 
-from platformio.util import get_serial_ports
+from platformio.public import list_serial_ports
 
 
 def BeforeUpload(target, source, env):  # pylint: disable=W0613,W0621
@@ -33,7 +33,7 @@ def BeforeUpload(target, source, env):  # pylint: disable=W0613,W0621
     if not bool(upload_options.get("disable_flushing", False)):
         env.FlushSerialBuffer("$UPLOAD_PORT")
 
-    before_ports = get_serial_ports()
+    before_ports = list_serial_ports()
 
     if bool(upload_options.get("use_1200bps_touch", False)):
         env.TouchSerialPort("$UPLOAD_PORT", 1200)
@@ -48,13 +48,9 @@ def BeforeUpload(target, source, env):  # pylint: disable=W0613,W0621
 
 
 env = DefaultEnvironment()
-env.SConscript("compat.py", exports="env")
 platform = env.PioPlatform()
 board = env.BoardConfig()
 variant = board.get("build.variant", "")
-
-use_adafruit = board.get(
-    "build.bsp.name", "nrf5") == "adafruit" and "arduino" in env.get("PIOFRAMEWORK", [])
 
 env.Replace(
     AR="arm-none-eabi-ar",
@@ -109,7 +105,7 @@ env.Append(
         ),
         MergeHex=Builder(
             action=env.VerboseAction(" ".join([
-                join(platform.get_package_dir("tool-sreccat") or "",
+                '"%s"' % join(platform.get_package_dir("tool-sreccat") or "",
                      "srec_cat"),
                 "$SOFTDEVICEHEX",
                 "-intel",
@@ -125,12 +121,17 @@ env.Append(
     )
 )
 
-if use_adafruit:
+upload_protocol = env.subst("$UPLOAD_PROTOCOL")
+
+if "nrfutil" == upload_protocol or (
+    board.get("build.bsp.name", "nrf5") == "adafruit"
+    and "arduino" in env.get("PIOFRAMEWORK", [])
+):
     env.Append(
         BUILDERS=dict(
             PackageDfu=Builder(
                 action=env.VerboseAction(" ".join([
-                    "$PYTHONEXE",
+                    '"$PYTHONEXE"',
                     '"%s"' % join(platform.get_package_dir(
                         "tool-adafruit-nrfutil") or "", "adafruit-nrfutil.py"),
                     "dfu",
@@ -149,8 +150,8 @@ if use_adafruit:
                 action=env.VerboseAction(
                     " ".join(
                         [
-                            "$PYTHONEXE",
-                            join(
+                            '"$PYTHONEXE"',
+                            '"%s"' % join(
                                 platform.get_package_dir(
                                     "framework-arduinoadafruitnrf52"
                                 )
@@ -186,7 +187,6 @@ if "zephyr" in env.get("PIOFRAMEWORK", []):
         exports={"env": env}
     )
 
-upload_protocol = env.subst("$UPLOAD_PROTOCOL")
 target_elf = None
 if "nobuild" in COMMAND_LINE_TARGETS:
     target_elf = join("$BUILD_DIR", "${PROGNAME}.elf")
@@ -198,7 +198,7 @@ else:
         target_firm = env.MergeHex(
             join("$BUILD_DIR", "${PROGNAME}"),
             env.ElfToHex(join("$BUILD_DIR", "userfirmware"), target_elf))
-    elif "nrfutil" == upload_protocol and use_adafruit:
+    elif "nrfutil" == upload_protocol:
         target_firm = env.PackageDfu(
             join("$BUILD_DIR", "${PROGNAME}"),
             env.ElfToHex(join("$BUILD_DIR", "${PROGNAME}"), target_elf))
